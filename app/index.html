@@ -3,21 +3,123 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
+<title>Vice Cover Studio — turn a photo into GTA-style cover art</title>
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">VC</span>
+    <span class="brand-name">Vice Cover Studio</span>
+    <span class="brand-tag">photo &rarr; poster, offline</span>
+  </div>
+  <div class="top-actions">
+    <button id="fillAllA" type="button" class="ghost-btn">One photo, every panel</button>
+    <button id="exportBtn" type="button" class="export-btn">Export PNG</button>
+  </div>
+</header>
+
+<main class="studio">
+  <aside class="panel" aria-label="Cover controls">
+    <section class="group">
+      <h2>1 · Photos</h2>
+      <p class="hint">Photos stay on your machine — nothing is uploaded.</p>
+      <div class="photo-row">
+        <label class="upload">Photo A
+          <input id="photoA" type="file" accept="image/*">
+          <span class="file-name" id="nameA">No photo yet</span>
+        </label>
+        <label class="upload">Photo B
+          <input id="photoB" type="file" accept="image/*">
+          <span class="file-name" id="nameB">No photo yet</span>
+        </label>
+      </div>
+      <div class="sample-row">
+        <span class="sample-label">Try a sample:</span>
+        <button type="button" class="chip" data-sample="boulevard">Boulevard</button>
+        <button type="button" class="chip" data-sample="pier">Pier</button>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>2 · Layout</h2>
+      <div class="btn-row" id="layoutRow">
+        <button type="button" class="seg-btn" data-layout="hero" aria-pressed="true">Hero + 3</button>
+        <button type="button" class="seg-btn" data-layout="grid" aria-pressed="false">4-panel grid</button>
+        <button type="button" class="seg-btn" data-layout="bleed" aria-pressed="false">Full-bleed</button>
+        <button type="button" class="seg-btn" data-layout="strip" aria-pressed="false">Strip</button>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>3 · Panels</h2>
+      <p class="hint">Pick a panel, then drag the preview (or use the sliders) to crop and position its photo.</p>
+      <div class="btn-row" id="panelTabs"></div>
+      <label class="field">Photo in this panel
+        <select id="panelPhoto">
+          <option value="A">Photo A</option>
+          <option value="B">Photo B</option>
+        </select>
+      </label>
+      <label class="field">Zoom <span class="val" id="zoomVal">1.00&times;</span>
+        <input id="zoom" type="range" min="1" max="3" step="0.01" value="1">
+      </label>
+      <label class="field">Shift left / right <span class="val" id="oxVal">0</span>
+        <input id="offsetX" type="range" min="-50" max="50" step="1" value="0">
+      </label>
+      <label class="field">Shift up / down <span class="val" id="oyVal">0</span>
+        <input id="offsetY" type="range" min="-50" max="50" step="1" value="0">
+      </label>
+      <button id="resetBtn" type="button" class="link-btn">Reset panel crops</button>
+    </section>
+
+    <section class="group">
+      <h2>4 · Words</h2>
+      <label class="field">Title
+        <input id="title" type="text" maxlength="28" value="NEON BOULEVARD">
+      </label>
+      <label class="field">Subtitle
+        <input id="subtitle" type="text" maxlength="48" value="PALMS, NEON &amp; GOLD">
+      </label>
+    </section>
+
+    <section class="group">
+      <h2>5 · Colour grade</h2>
+      <div class="swatches" id="gradeRow">
+        <button type="button" class="swatch" data-grade="sunset" aria-pressed="true"><span class="sw sunset"></span>Sunset</button>
+        <button type="button" class="swatch" data-grade="neon" aria-pressed="false"><span class="sw neon"></span>Neon night</button>
+        <button type="button" class="swatch" data-grade="vice" aria-pressed="false"><span class="sw vice"></span>Teal / pink</button>
+        <button type="button" class="swatch" data-grade="noir" aria-pressed="false"><span class="sw noir"></span>Noir</button>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>6 · Finish</h2>
+      <fieldset class="fx">
+        <legend>Effects</legend>
+        <label><input id="fxGrain" type="checkbox" checked> Film grain</label>
+        <label><input id="fxVignette" type="checkbox" checked> Vignette</label>
+        <label><input id="fxHalftone" type="checkbox" checked> Halftone title band</label>
+      </fieldset>
+      <div class="btn-row" id="sizeRow">
+        <button type="button" class="seg-btn" data-size="square" aria-pressed="false">1080 &times; 1080</button>
+        <button type="button" class="seg-btn" data-size="portrait" aria-pressed="false">1080 &times; 1350</button>
+        <button type="button" class="seg-btn" data-size="wide" aria-pressed="true">1920 &times; 1080</button>
+      </div>
+      <button id="exportBtn2" type="button" class="export-btn wide">Export PNG — <span id="sizeLabel">1920 &times; 1080</span></button>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+  </aside>
+
+  <section class="stage" aria-label="Live preview">
+    <div class="canvas-wrap">
+      <canvas id="preview" width="1920" height="1080" aria-label="Live cover preview"></canvas>
+      <p class="stage-hint">Drag the cover to move the selected panel&rsquo;s photo. Live preview — what you see is the export.</p>
+    </div>
   </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
 </main>
+
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>
